@@ -1,0 +1,8 @@
+{
+  "name": "Remix: B3批量以圖搜圖與原圖高解析度比對工具",
+  "description": "批次上傳多張圖片或資料夾，自動分析特徵指紋(SHA256/pHash/dHash/尺寸與分類)，產生 10~30 分鐘可用的外部可讀 URL，並透過 Google, Twitter, Yandex, SauceNAO, trace.moe 等多引擎偵測並找出高解析度原圖，提供批量下載與精準比對功能。",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
