@@ -311,7 +311,7 @@ export default function App() {
               : adapterResult.status === "service_down"
                 ? `${adapter.engineName} (Service Down)`
                 : adapterResult.status === "blocked"
-                  ? `${adapter.engineName} (Cloudflare Blocked)`
+                  ? `${adapter.engineName} (Blocked / Rate Limit)`
                   : `${adapter.engineName} (Manual Required)`;
 
             searchResults.push({
@@ -592,7 +592,38 @@ export default function App() {
       if (sortBy === "res-desc") {
         return (b.width * b.height) - (a.width * a.height);
       }
-      return 0; // Original order
+      
+      // Default sorting behavior:
+      const getSortMetrics = (img: UploadedImage) => {
+        let sameCount = 0;
+        let maxScore = 0;
+        if (img.searchResults) {
+          img.searchResults.forEach(res => {
+            if (res.isSameImage) {
+              sameCount++;
+              if (res.score && res.score > maxScore) {
+                maxScore = res.score;
+              }
+            }
+          });
+        }
+        return { sameCount, maxScore, size: img.width * img.height };
+      };
+
+      const metricsA = getSortMetrics(a);
+      const metricsB = getSortMetrics(b);
+      
+      if (metricsB.sameCount !== metricsA.sameCount) {
+        return metricsB.sameCount - metricsA.sameCount; // Descending count
+      }
+      if (metricsB.maxScore !== metricsA.maxScore) {
+        return metricsB.maxScore - metricsA.maxScore; // Descending max score
+      }
+      if (metricsB.size !== metricsA.size) {
+        return metricsB.size - metricsA.size; // Descending size
+      }
+
+      return 0; // Original order fallback
     });
 
   sortedAndFilteredRef.current = sortedAndFilteredImages;
@@ -661,6 +692,40 @@ export default function App() {
           updateImageState(item.id, { openedHighRes: true });
         }, i * 350); // Slight delay to avoid popup blocker
       }
+    });
+  };
+
+  // Open the best similar website for all processed images
+  const handleBatchOpenAllSimilar = () => {
+    const urlsToOpen: string[] = [];
+    sortedAndFilteredImages.forEach(img => {
+      if (img.status === "completed" && img.searchResults && img.searchResults.length > 0) {
+        // Find the best actual match (skip manual search fallback links)
+        const firstValid = img.searchResults.find(res => !res.isManualLink && (res.url || res.foundImageUrl));
+        const link = firstValid?.url || firstValid?.foundImageUrl;
+        if (link) {
+          urlsToOpen.push(link);
+        }
+      }
+    });
+    
+    if (urlsToOpen.length === 0) {
+      alert("目前沒有找到任何確認的相似原圖網站可以開啟。 (或只有手動搜尋頁面)");
+      return;
+    }
+    
+    let blocked = false;
+    urlsToOpen.forEach((link, i) => {
+      setTimeout(() => {
+        const newWin = window.open(link, "_blank");
+        if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+          blocked = true;
+        }
+        // Only show alert once at the end if blocked
+        if (i === urlsToOpen.length - 1 && blocked) {
+           alert("⚠️ 發現瀏覽器阻擋了多重視窗彈出！\n\n因為「一鍵開啟所有」需要同時開啟多個新分頁，請至瀏覽器網址列右方（或設定中）【允許本網站的彈出式視窗與重新導向】。");
+        }
+      }, i * 350);
     });
   };
 
@@ -991,29 +1056,41 @@ export default function App() {
 
           {/* QUEUE OVERVIEW STATS */}
           {images.length > 0 && (
-            <div className="grid grid-cols-4 gap-2">
-              <div className="bg-[#111726]/85 p-2.5 rounded-lg border border-white/5 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              <div className="bg-[#111726]/85 p-2 rounded-lg border border-white/5 text-center flex flex-col justify-center">
                 <span className="block text-[10px] text-slate-400">顯示對象</span>
                 <span className="text-sm font-bold text-blue-400">{sortedAndFilteredImages.length} 張</span>
               </div>
-              <div className="bg-[#111726]/85 p-2.5 rounded-lg border border-white/5 text-center">
+              <div className="bg-[#111726]/85 p-2 rounded-lg border border-white/5 text-center flex flex-col justify-center">
                 <span className="block text-[10px] text-slate-400">核心處理中</span>
                 <span className="text-sm font-bold text-amber-500">
                   {images.filter(img => ["analyzing", "uploading", "searching"].includes(img.status)).length}
                 </span>
               </div>
-              <div className="bg-[#111726]/85 p-2.5 rounded-lg border border-white/5 text-center">
+              <div className="bg-[#111726]/85 p-2 rounded-lg border border-white/5 text-center flex flex-col justify-center">
                 <span className="block text-[10px] text-slate-400">已處理完成</span>
                 <span className="text-sm font-bold text-teal-400">
                   {images.filter(img => img.status === "completed").length}
                 </span>
               </div>
-              <div className="bg-[#111726]/85 p-2.5 rounded-lg border border-white/5 text-center">
+              <div className="bg-[#111726]/85 p-2 rounded-lg border border-white/5 text-center flex flex-col justify-center">
                 <span className="block text-[10px] text-slate-400">處裡失敗</span>
                 <span className="text-sm font-bold text-red-500">
                   {images.filter(img => img.status === "failed").length}
                 </span>
               </div>
+              {images.some(img => img.status === "completed") ? (
+                <button 
+                  onClick={handleBatchOpenAllSimilar}
+                  className="bg-indigo-600/20 hover:bg-indigo-600/40 p-2 rounded-lg border border-indigo-500/30 flex justify-center items-center transition-colors cursor-pointer group h-full"
+                >
+                  <span className="text-lg font-bold text-indigo-400 tracking-widest group-hover:text-indigo-300">一鍵抓取</span>
+                </button>
+              ) : (
+                <div className="bg-[#111726]/40 p-2 rounded-lg border border-white/5 text-center flex flex-col justify-center opacity-50">
+                   <span className="block text-[10px] text-slate-500">等待搜尋完成</span>
+                </div>
+              )}
             </div>
           )}
 

@@ -101,6 +101,13 @@ export class SauceNAOAdapter extends SearchAdapter {
             searchPageUrl: `https://saucenao.com/search.php?url=${encodeURIComponent(payload.publicUrl)}`,
             candidates: []
           };
+        } else if (data.error === "rate_limit") {
+          return {
+            engine: this.engineName,
+            capability: this.capability,
+            status: "blocked",
+            searchPageUrl: String(this.engineName) === "saucenao" ? `https://saucenao.com/search.php?url=${encodeURIComponent(payload.publicUrl)}` : ``, candidates: []
+          };
         } else if (data.error === "cloudflare_block") {
           return {
             engine: this.engineName,
@@ -164,6 +171,13 @@ export class TinEyeAdapter extends SearchAdapter {
             status: "service_down",
             searchPageUrl: `https://tineye.com/search?url=${encodeURIComponent(payload.publicUrl)}`,
             candidates: []
+          };
+        } else if (data.error === "rate_limit") {
+          return {
+            engine: this.engineName,
+            capability: this.capability,
+            status: "blocked",
+            searchPageUrl: String(this.engineName) === "saucenao" ? `https://saucenao.com/search.php?url=${encodeURIComponent(payload.publicUrl)}` : ``, candidates: []
           };
         } else if (data.error === "cloudflare_block") {
           return {
@@ -229,6 +243,13 @@ export class DanbooruAdapter extends SearchAdapter {
             searchPageUrl: `https://danbooru.donmai.us/iqdb_queries?url=${encodeURIComponent(payload.publicUrl)}`,
             candidates: []
           };
+        } else if (data.error === "rate_limit") {
+          return {
+            engine: this.engineName,
+            capability: this.capability,
+            status: "blocked",
+            searchPageUrl: String(this.engineName) === "saucenao" ? `https://saucenao.com/search.php?url=${encodeURIComponent(payload.publicUrl)}` : ``, candidates: []
+          };
         } else if (data.error === "cloudflare_block") {
           return {
             engine: this.engineName,
@@ -292,6 +313,13 @@ export class IQDBAdapter extends SearchAdapter {
             status: "service_down",
             searchPageUrl: `https://iqdb.org/?url=${encodeURIComponent(payload.publicUrl)}`,
             candidates: []
+          };
+        } else if (data.error === "rate_limit") {
+          return {
+            engine: this.engineName,
+            capability: this.capability,
+            status: "blocked",
+            searchPageUrl: String(this.engineName) === "saucenao" ? `https://saucenao.com/search.php?url=${encodeURIComponent(payload.publicUrl)}` : ``, candidates: []
           };
         } else if (data.error === "cloudflare_block") {
           return {
@@ -357,6 +385,13 @@ export class YandexAdapter extends SearchAdapter {
             searchPageUrl: `https://yandex.com/images/search?rpt=imageview&url=${encodeURIComponent(payload.publicUrl)}`,
             candidates: []
           };
+        } else if (data.error === "rate_limit") {
+          return {
+            engine: this.engineName,
+            capability: this.capability,
+            status: "blocked",
+            searchPageUrl: String(this.engineName) === "saucenao" ? `https://saucenao.com/search.php?url=${encodeURIComponent(payload.publicUrl)}` : ``, candidates: []
+          };
         } else if (data.error === "cloudflare_block") {
           return {
             engine: this.engineName,
@@ -420,6 +455,13 @@ export class Ascii2dAdapter extends SearchAdapter {
             status: "service_down",
             searchPageUrl: `https://ascii2d.net/search/url/${encodeURIComponent(payload.publicUrl)}`,
             candidates: []
+          };
+        } else if (data.error === "rate_limit") {
+          return {
+            engine: this.engineName,
+            capability: this.capability,
+            status: "blocked",
+            searchPageUrl: String(this.engineName) === "saucenao" ? `https://saucenao.com/search.php?url=${encodeURIComponent(payload.publicUrl)}` : ``, candidates: []
           };
         } else if (data.error === "cloudflare_block") {
           return {

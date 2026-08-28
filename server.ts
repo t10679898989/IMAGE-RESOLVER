@@ -113,7 +113,9 @@ app.post("/api/search-tineye", async (req, res) => {
     if (result.status === 403 || html.includes("Just a moment...") || html.includes("Cloudflare")) {
        return res.json({ success: false, error: "cloudflare_block" });
     }
-
+    if (result.status === 429 || html.includes("rate limit") || html.includes("3 searches every 30 seconds")) {
+       return res.json({ success: false, error: "rate_limit" });
+    }
     if (!result.ok) {
       throw new Error(`TinEye returned status code ${result.status}`);
     }
@@ -185,7 +187,9 @@ app.post("/api/search-saucenao", async (req, res) => {
     if (result.status === 403 || html.includes("Just a moment...") || html.includes("Cloudflare")) {
        return res.json({ success: false, error: "cloudflare_block" });
     }
-
+    if (result.status === 429 || html.includes("rate limit") || html.includes("3 searches every 30 seconds")) {
+       return res.json({ success: false, error: "rate_limit" });
+    }
     if (!result.ok) {
       throw new Error(`SauceNAO returned status code ${result.status}`);
     }
@@ -272,7 +276,9 @@ app.post("/api/search-iqdb", async (req, res) => {
     if (result.status === 403 || html.includes("Just a moment...") || html.includes("Cloudflare")) {
        return res.json({ success: false, error: "cloudflare_block" });
     }
-
+    if (result.status === 429 || html.includes("rate limit") || html.includes("3 searches every 30 seconds")) {
+       return res.json({ success: false, error: "rate_limit" });
+    }
     if (!result.ok) {
       throw new Error(`IQDB returned status code ${result.status}`);
     }
@@ -335,7 +341,9 @@ app.post("/api/search-danbooru", async (req, res) => {
     if (result.status === 403 || html.includes("Just a moment...") || html.includes("Cloudflare") || html.includes("cloudflare")) {
        return res.json({ success: false, error: "cloudflare_block" });
     }
-
+    if (result.status === 429 || html.includes("rate limit") || html.includes("3 searches every 30 seconds")) {
+       return res.json({ success: false, error: "rate_limit" });
+    }
     if (!result.ok) {
       throw new Error(`Danbooru returned status code ${result.status}`);
     }
@@ -461,7 +469,9 @@ app.post("/api/search-ascii2d", async (req, res) => {
     if (result.status === 403 || html.includes("Just a moment...") || html.includes("Cloudflare")) {
        return res.json({ success: false, error: "cloudflare_block" });
     }
-
+    if (result.status === 429 || html.includes("rate limit") || html.includes("3 searches every 30 seconds")) {
+       return res.json({ success: false, error: "rate_limit" });
+    }
     if (!result.ok) {
       throw new Error(`Ascii2d returned status code ${result.status}`);
     }
